@@ -15,8 +15,7 @@ var bookController = function(Book){
       book.save();
 
       // client gets the response from server and status code
-      res.status(201);
-      res.send(book);
+      res.status(201).send(book);
     }
   };
 
@@ -42,10 +41,23 @@ var bookController = function(Book){
     Book.find(query, function(err,books){
 
       if(err){
+        // split res cos of testing
         res.status(500);
         res.send(err);
       } else {
-        res.json(books);
+        // res.json(books);
+        // HATEOS, .links to help users to navigate API
+        var returnBooks = [];
+        books.forEach(function(element, index, array){
+          // create new model to not modify mongoose models, .toJSON strips out Mongoose
+            var newBook = element.toJSON();
+            newBook.links= {};
+            newBook.links.self = 'http://' + req.headers.host + '/api/books/' + newBook._id;
+            returnBooks.push(newBook);
+        });
+
+        res.json(returnBooks);
+
       }
     });
 

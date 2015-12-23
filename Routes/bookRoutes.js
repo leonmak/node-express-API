@@ -22,22 +22,33 @@ var routes = function(Book){
   bookRouter.use('/:bookId', function(req,res, next){
     // next arg: if no middleware move on to verbs
     Book.findById(req.params.bookId, function(err,book){
-      if(err)
-      res.status(500).send(err);
-      else if(book){
+      if(err){
+        res.status(500).send(err);
+      } else if(book){
         req.book = book;
-        next();
       } else {
         res.status(404).send('no book found');
       }
+      next();
     });
   });
 
   bookRouter.route('/:bookId')
   .get(function(req,res){
+    // HATEOS, letting user know query options
+    var returnBook = req.book.toJSON();
+    returnBook.links = {};
+      // add the query to links
+    var newLink = 'http://' + req.headers.host + '/api/books/?genre=' + returnBook.genre;
+      // replace space in values with %20
+    returnBook.links.FilterByThisGenre = newLink.replace(' ', '%20');
+    res.json(returnBook);
+
+    returnBook.links = {};
+
 
     // use Middleware, req.book set in middleware
-    res.json(req.book);
+    // res.json(req.book);
   })
   // put
   .put(function(req,res){
