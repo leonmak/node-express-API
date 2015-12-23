@@ -32,5 +32,5 @@ app.get('/', function(req,res){
 });
 
 app.listen(port, function(){
-  console.log("on 3000");
+  console.log("on port " + port);
 });

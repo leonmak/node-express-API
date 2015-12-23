@@ -7,47 +7,15 @@ var routes = function(Book){
 
   var bookRouter = express.Router();
 
+  // cut out all verbs into a controller.js
+  var bookController = require('../Controllers/bookController')(Book);
+
   // for /api/Books route
   bookRouter.route('/')
-  .post(function(req, res){
 
-    // new mongoose instance
-    var book = new Book(req.body);
-
-    // save in mongodb
-    book.save();
-
-    // client gets the response from server and status code
-    res.status(201).send(book);
-
-  })
-
-  .get(function(req,res){
-    // previously
-    // var response = { HI: 'this is my api'};
-    // res.json(response);
-
-    // I copied the file into dir and did:
-    // $ mongo bookAPI < booksJson.js
-    // can see in robomongo
-
-    // pass filter var into first arg of Model.find
-    var query = {};
-    if(req.query.genre)
-    {
-      query.genre = req.query.genre;
-    }
-
-
-    Book.find(query, function(err,books){
-
-      if(err)
-      res.status(500).send(err);
-      else
-      res.json(books);
-    });
-
-  });
+  // cut out all verbs into a controller.js
+  .post(bookController.post)
+  .get(bookController.get);
 
 
   // Middleware
@@ -84,46 +52,46 @@ var routes = function(Book){
     // pass cb in .save for async code
     // not req.book.save(); res.json(req.book)
     req.book.save(function(err){
-        if(err)
-            res.status(500).send(err);
-        else{
-            res.json(req.book);
-        }
+      if(err)
+      res.status(500).send(err);
+      else{
+        res.json(req.book);
+      }
     });
   })
   .patch(function(req,res){
-      // we don't want to update _id, so del the received id
-      if(req.body._id)
-          delete req.body._id;
-      // , only change received fields
-      // for key in received object
-      for(var p in req.body)
-      {
-          req.book[p] = req.body[p];
-      }
+    // we don't want to update _id, so del the received id
+    if(req.body._id)
+    delete req.body._id;
+    // , only change received fields
+    // for key in received object
+    for(var p in req.body)
+    {
+      req.book[p] = req.body[p];
+    }
 
-      req.book.save(function(err){
-          if(err)
-              res.status(500).send(err);
-          else{
-              res.json(req.book);
-          }
-      });
+    req.book.save(function(err){
+      if(err)
+      res.status(500).send(err);
+      else{
+        res.json(req.book);
+      }
+    });
   })
   // Testing in postman: set Content-type to application/json
   .delete(function(req,res){
-      req.book.remove(function(err){
-          if(err)
-              res.status(500).send(err);
-          else{
-              res.status(204).send('Removed');
-          }
-      });
+    req.book.remove(function(err){
+      if(err)
+      res.status(500).send(err);
+      else{
+        res.status(204).send('Removed');
+      }
+    });
   })
-;
-// end from app.js
+  ;
+  // end from app.js
 
-return bookRouter;
+  return bookRouter;
 };
 
 module.exports = routes;
