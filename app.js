@@ -5,7 +5,13 @@ mongoose = require('mongoose'),
 bodyParser = require('body-parser');
 
 // remember to mongod
-var db = mongoose.connect('mongodb://localhost/bookAPI');
+var db;
+// use a different db if env var set to test
+if(process.env.ENV==='Test'){
+  db = mongoose.connect('mongodb://localhost/bookAPI_test');
+} else {
+  db = mongoose.connect('mongodb://localhost/bookAPI');
+}
 // create new file for model < schema (~ col headers)
 var Book = require('./models/bookModel');
 
@@ -33,4 +39,9 @@ app.get('/', function(req,res){
 
 app.listen(port, function(){
   console.log("on port " + port);
+  console.log(process.env.ENV);
+
 });
+
+// allows supertest to execute the app
+module.exports = app;

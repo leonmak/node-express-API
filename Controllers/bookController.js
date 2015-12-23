@@ -5,13 +5,20 @@ var bookController = function(Book){
     // new mongoose instance
     var book = new Book(req.body);
 
-    // save in mongodb
-    book.save();
+    // for Testing: if no title send 400
+    if(!req.body.title){
+      res.status(400);
+      res.send("Title is required");
+    } else {
 
-    // client gets the response from server and status code
-    res.status(201).send(book);
+      // save in mongodb
+      book.save();
 
-  }
+      // client gets the response from server and status code
+      res.status(201);
+      res.send(book);
+    }
+  };
 
   var get = function(req,res){
     // from bookRoutes.js
@@ -34,21 +41,23 @@ var bookController = function(Book){
 
     Book.find(query, function(err,books){
 
-      if(err)
-      res.status(500).send(err);
-      else
-      res.json(books);
+      if(err){
+        res.status(500);
+        res.send(err);
+      } else {
+        res.json(books);
+      }
     });
 
 
-  }
+  };
 
   // Revealing module pattern, return getters from controller
   return {
     post:post,
     get:get
-  }
+  };
 
-}
+};
 
 module.exports = bookController;
